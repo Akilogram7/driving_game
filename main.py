@@ -8,3 +8,7 @@ pygame.display.set_caption("Driving Game")
 while True: 
     if manager.screen == "start":
         interfaces.start.output(window)
+    elif manager.screen == "exit":
+        pygame.quit()
+        sys.exit()
+        
