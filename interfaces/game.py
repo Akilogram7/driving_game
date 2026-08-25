@@ -16,7 +16,7 @@ def output(window):
         key_input = pygame.key.get_pressed()
         
         player.key_press()
-    
+        
         for event in pygame.event.get():
             # if user  QUIT then the screen will close
             
