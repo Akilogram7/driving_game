@@ -8,6 +8,11 @@ class movable(objects.images.still):
         super().__init__(x, y, width, height, image_to_use)
 
         self.speed = speed
+        
+        self.vel_y = 0
+        self.gravity = 0.6 
+        self.jump_strength = -15
+        self.on_ground = False
 
         # Load player direction images
         self.image_forward = pygame.image.load(manager.PLAYER_FORWARD).convert_alpha()
@@ -59,40 +64,50 @@ class movable(objects.images.still):
             self.image = self.image_backward
             
         elif key_input[pygame.K_a]:
-                    self.image = self.image_backward
+            self.image = self.image_backward
         
         elif key_input[pygame.K_d]:
             self.image = self.image_forward
             
         elif key_input[pygame.K_w]:
             self.image = self.image_up
+    
         elif key_input[pygame.K_s]:
-                self.image = self.image_down
+            self.image = self.image_down
                     
         # Update mask after changing image
         self.mask = pygame.mask.from_surface(self.image)
 
         # Player movement
-        self.movex = (
-            key_input[pygame.K_a] * -self.speed + key_input[pygame.K_d] * self.speed
-        )
+        self.movex = (key_input[pygame.K_a] * -self.speed + key_input[pygame.K_d] * self.speed)
+        self.movey = (key_input[pygame.K_w] * -self.speed) + (key_input[pygame.K_s] * self.speed)
 
-        self.movey = (
-            key_input[pygame.K_w] * -self.speed + key_input[pygame.K_s] * self.speed
-        )
+        # Jump
+        if key_input[pygame.K_w] and self.on_ground:
+            self.vel_y = self.jump_strength
+            self.on_ground = False
 
+        # Gravity
+        self.vel_y += self.gravity
+        self.movey = self.vel_y
+
+        # Move player
         self.rect.move_ip(self.movex, self.movey)
 
+        # Ground collision
+        if self.rect.bottom >= manager.WINDOW_HEIGHT:
+            self.rect.bottom = manager.WINDOW_HEIGHT
+            self.vel_y = 0
+            self.on_ground = True
+        
     def back(self):
         if self.rect.x <= 0 or self.rect.y <= 0:
             self.rect.x -= self.movex + 10 * -1
             self.rect.y -= self.movey + 10 * -1
 
-        elif (
-            self.rect.x >= manager.WINDOW_WIDTH or self.rect.y >= manager.WINDOW_HEIGHT
-        ):
-            self.rect.x -= self.movex + 10 * 1
-            self.rect.y -= self.movey + 10 * 1
+        elif self.rect.x >= manager.WINDOW_WIDTH or self.rect.y >= manager.WINDOW_HEIGHT:
+            self.rect.x -= self.movex + 10 *1
+            self.rect.y -= self.movey + 10  *1
 
     # def wall_collision(self):
     #     self.rect.x -= self.movex
